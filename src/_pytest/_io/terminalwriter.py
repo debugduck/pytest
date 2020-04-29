@@ -87,7 +87,6 @@ class TerminalWriter:
         self._file = file
         self.hasmarkup = should_do_markup(file)
         self._lastlen = 0
-        self._chars_on_current_line = 0
         self._width_of_current_line = 0
         self._terminal_width = None  # type: Optional[int]
 
@@ -100,14 +99,6 @@ class TerminalWriter:
     @fullwidth.setter
     def fullwidth(self, value: int) -> None:
         self._terminal_width = value
-
-    @property
-    def chars_on_current_line(self) -> int:
-        """Return the number of characters written so far in the current line.
-
-        :rtype: int
-        """
-        return self._chars_on_current_line
 
     @property
     def width_of_current_line(self) -> int:
@@ -169,10 +160,8 @@ class TerminalWriter:
         if msg:
             current_line = msg.rsplit("\n", 1)[-1]
             if "\n" in msg:
-                self._chars_on_current_line = len(current_line)
                 self._width_of_current_line = get_line_width(current_line)
             else:
-                self._chars_on_current_line += len(current_line)
                 self._width_of_current_line += get_line_width(current_line)
 
             if self.hasmarkup and kw:

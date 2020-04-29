@@ -343,7 +343,7 @@ class TerminalReporter:
             fspath = self.startdir.bestrelpath(fspath)
             self._tw.line()
             self._tw.write(fspath + " ")
-        self._tw.write(res, **markup)
+        self._tw.write(res, flush=True, **markup)
 
     def write_ensure_prefix(self, prefix, extra="", **kwargs):
         if self.currentfspath != prefix:
@@ -359,8 +359,8 @@ class TerminalReporter:
             self._tw.line()
             self.currentfspath = None
 
-    def write(self, content, **markup):
-        self._tw.write(content, **markup)
+    def write(self, content, flush: bool = False, **markup):
+        self._tw.write(content, flush=flush, **markup)
 
     def write_line(self, line, **markup):
         if not isinstance(line, str):
@@ -471,7 +471,7 @@ class TerminalReporter:
             if not running_xdist and self.showfspath:
                 self.write_fspath_result(rep.nodeid, letter, **markup)
             else:
-                self._tw.write(letter, **markup)
+                self._tw.write(letter, flush=True, **markup)
         else:
             self._progress_nodeids_reported.add(rep.nodeid)
             line = self._locationline(rep.nodeid, *rep.location)
@@ -489,7 +489,7 @@ class TerminalReporter:
                 else:
                     self._tw.write(" ")
                 self._tw.write(word, **markup)
-                self._tw.write(" " + line)
+                self._tw.write(" " + line, flush=True)
                 self.currentfspath = -2
 
     @property
@@ -539,7 +539,7 @@ class TerminalReporter:
         msg = self._get_progress_information_message()
         w = self._width_of_current_line
         fill = self._tw.fullwidth - w - 1
-        self.write(msg.rjust(fill), **{color: True})
+        self.write(msg.rjust(fill), flush=True, **{color: True})
 
     @property
     def _width_of_current_line(self):
@@ -553,10 +553,10 @@ class TerminalReporter:
     def pytest_collection(self) -> None:
         if self.isatty:
             if self.config.option.verbose >= 0:
-                self.write("collecting ... ", bold=True)
+                self.write("collecting ... ", flush=True, bold=True)
                 self._collect_report_last_write = time.time()
         elif self.config.option.verbose >= 1:
-            self.write("collecting ... ", bold=True)
+            self.write("collecting ... ", flush=True, bold=True)
 
     def pytest_collectreport(self, report: CollectReport) -> None:
         if report.failed:
